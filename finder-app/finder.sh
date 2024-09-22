@@ -11,7 +11,7 @@ then
 		echo "Error: Directory ${filesdir} does not exist! "
 		exit 1
 	else
-		filecount=$(find ${filesdir} | wc -l)
+		filecount=$(find ${filesdir} -type f | wc -l)
 		linecount=$(grep -o -r ${searchstr} ${filesdir} | wc -l)
 		echo "The number of files are ${filecount} and the number of matching lines are ${linecount}" 
 	fi
