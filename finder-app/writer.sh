@@ -23,7 +23,12 @@ then
 		fi
 	else
 		echo "${dir} DOES NOT EXIST"
-		mkdir ${dir}
+		mkdir -p ${dir}
+		if [ $? -ne 0 ]
+		then
+			echo "Error: Failed to create new directory"
+			exit 1
+		fi
 		echo "New Directory created at ${dir} "
 		touch ${writefile}
 		if [ $? -ne 0 ]
