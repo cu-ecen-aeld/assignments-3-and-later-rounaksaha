@@ -1,6 +1,7 @@
 # Variables for Cross Compilation
 CC_NATIVE = gcc
-CC_CROSS = x86_64-linux-gnu-gcc
+#CC_CROSS = x86_64-linux-gnu-gcc
+CC_CROSS = aarch64-none-linux-gnu-gcc
 CFLAGS = -Wall -g
 WRITEFILE = /home/rounsahaubuntu/aesd-assignments/finder-app/rounaksaha_debug.txt
 WRITESTR = rounaksaha
