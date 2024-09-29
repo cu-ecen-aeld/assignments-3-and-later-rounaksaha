@@ -2,6 +2,8 @@
 CC_NATIVE = gcc
 CC_CROSS = x86_64-linux-gnu-gcc
 CFLAGS = -Wall -g
+WRITEFILE = /home/rounsahaubuntu/aesd-assignments/finder-app/rounaksaha_debug.txt
+WRITESTR = rounaksaha
 
 # Target Architecture is Native by Default
 CROSS_COMPILE ?= native
@@ -20,5 +22,7 @@ writer: writer.o
 	$(CC) $(CFLAGS) -o writer writer.o
 writer.o: writer.c
 	$(CC) $(CFLAGS) -c writer.c
+run: writer
+	./writer $(WRITEFILE) $(WRITESTR)
 clean:
 	rm writer writer.o

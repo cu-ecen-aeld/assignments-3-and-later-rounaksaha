@@ -3,7 +3,7 @@
 #include <syslog.h>
 #include <errno.h>
 
-int main()
+int main(int argc, char *argv[])
 {
 	//LeoDebug
 	printf("writer.c has been called \n");
@@ -12,15 +12,18 @@ int main()
 	syslog(LOG_DEBUG, "Program Started!"); 
 
 	FILE *fptr;
-	//File Path including Filename
-	char writefile[] = "LeoAssignment2.txt";
-	//Data to be inserted
-	char writestr[] = "Hello World!";
 
-	syslog(LOG_DEBUG, "Writing %s to %s", writestr, writefile);
+	//Accessing Arguments 
+	printf("number of arguments %d\n", argc);
+	for(int i=0; i<argc; i++)
+	{
+		printf("argument %d: %s\n", i, argv[i]); 
+	}
+
+	syslog(LOG_DEBUG, "Writing %s to %s", argv[2], argv[1]);
 
 	//Open File in Write Mode
-	fptr = fopen(writefile, "w");
+	fptr = fopen(argv[1], "w");
 
 	if(fptr==NULL)
 	{
@@ -30,7 +33,7 @@ int main()
 	}
 
 	//Write to the File
-	fprintf(fptr, "%s", writestr);
+	fprintf(fptr, "%s\n", argv[2]);
 	printf("string written to file \n");
 	//Close the File
 	fclose(fptr);
