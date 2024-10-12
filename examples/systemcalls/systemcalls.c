@@ -74,39 +74,44 @@ bool do_exec(int count, ...)
  *   as second argument to the execv() command.
  *
 */
+    fflush(stdout);
     pid_t pid = fork();
 
+    /* Immediately return if fork failed */
+    if(pid==-1)
+    {
+	return false;
+    }
+    else
     if(pid==0)
     {
 	/* Child Process */
         printf("do_exec: Fork Successful, Child Process=%d \n", getpid());
 	if(execv(command[0], command)==-1)
-		exit(EXIT_FAILURE);
-	exit(EXIT_SUCCESS);
+	perror("do_exec: Execv Failed ");
+	abort();
     }
-    else if(pid>0)
+    else 
+    if(pid>0)
     {
         /* Parent Process */
 	int parent_stat;
-        pid_t kidpid = wait(&parent_stat); /* Wait for Child Process to finish */
-        printf("do_exec: Child Process PID=%d from Parent Process Status=%d \n", kidpid, parent_stat);
 
+	/* here, waitpid gets the child pid */
+	if(waitpid(pid, &parent_stat, 0)==-1)
+		return false;
+	else /* Child exited normally */ 
 	if(WIFEXITED(parent_stat))
 	{
-	    printf("Child Process Exited normally with status %d \n", WEXITSTATUS(parent_stat));
+		if(WEXITSTATUS(parent_stat)!=0)
+			return false;
+		else
+			return true;
 	}
-	else
-	{
-	    printf("Child Terminated by signal %d \n", WTERMSIG(parent_stat));
-	    exit(EXIT_FAILURE);
-	}
-    }
-    else /* pid < 0 */
-    {
-        /* Error Handling */
-	printf("do_exec: Fork Failed with PID=%d \n", pid);
-	perror("Fork Failed ");
-	exit(EXIT_FAILURE);
+	else /* Child exited because a signal was not caught */
+	if(WIFSIGNALED(parent_stat))
+		return false;
+	
     }
 
     va_end(args);
@@ -148,7 +153,7 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
 	printf("do_exec_direct: Failed to open file \n");
 	return false;
     }
-
+    fflush(stdout);
     pid_t pid = fork();
 
     if(pid==0)
