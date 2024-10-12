@@ -16,8 +16,20 @@ bool do_system(const char *cmd)
  *   and return a boolean true if the system() call completed with success
  *   or false() if it returned a failure
 */
+    bool status = false;
 
-    return true;
+    int returncode = system(cmd);
+    if(returncode == 0)
+    {
+        printf("do_system: Command Executed Successfully \n");
+	status = true;
+    } 
+    else
+    {
+        printf("do_system: Command Execution Failed with Code=%d \n", returncode);
+    }
+   
+    return status;
 }
 
 /**
@@ -58,10 +70,31 @@ bool do_exec(int count, ...)
  *   as second argument to the execv() command.
  *
 */
+    bool status = false;
+    pid_t pid = fork();
+
+    if(pid==0)
+    {
+	/* Child Process */
+        printf("do_exec: Fork Successful \n");
+	execv(command[0], command);
+    }
+    else if(pid>0)
+    {
+        /* Parent Process */
+	wait(NULL); /* Wait for Child Process to finish */
+        printf("do_exec: Child Process Completed with Code=%d \n", pid);
+    }
+    else
+    {
+        /* Error Handling */
+	printf("do_exec: Fork Failed with Code=%d \n", pid);
+	status = false;
+    }
 
     va_end(args);
 
-    return true;
+    return status;
 }
 
 /**
