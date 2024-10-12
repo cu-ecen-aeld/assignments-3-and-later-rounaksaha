@@ -1,4 +1,8 @@
 #include "systemcalls.h"
+#include <sys/wait.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 /**
  * @param cmd the command to execute with system()
@@ -78,6 +82,9 @@ bool do_exec(int count, ...)
 	/* Child Process */
         printf("do_exec: Fork Successful \n");
 	execv(command[0], command);
+	perror("Execv Failed");
+	status = false;
+	abort();
     }
     else if(pid>0)
     {
@@ -89,7 +96,9 @@ bool do_exec(int count, ...)
     {
         /* Error Handling */
 	printf("do_exec: Fork Failed with Code=%d \n", pid);
+	perror("Fork Failed ");
 	status = false;
+	abort();
     }
 
     va_end(args);
@@ -150,7 +159,7 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
 	}
 	close(fd);
 	execv(command[0], command);
-	perror("Execvp Failed ");
+	perror("Execv Failed ");
 	status = false;
 	abort();
     }
