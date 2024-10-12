@@ -74,7 +74,6 @@ bool do_exec(int count, ...)
  *   as second argument to the execv() command.
  *
 */
-    bool status = true;
     pid_t pid = fork();
 
     if(pid==0)
@@ -83,27 +82,25 @@ bool do_exec(int count, ...)
         printf("do_exec: Fork Successful \n");
 	execv(command[0], command);
 	perror("Execv Failed");
-	status = false;
-	abort();
+	return false;
     }
     else if(pid>0)
     {
         /* Parent Process */
 	wait(NULL); /* Wait for Child Process to finish */
-        printf("do_exec: Child Process Completed with Code=%d \n", pid);
+        printf("do_exec: Child Process Completed with PID=%d \n", pid);
     }
     else
     {
         /* Error Handling */
-	printf("do_exec: Fork Failed with Code=%d \n", pid);
+	printf("do_exec: Fork Failed with PID=%d \n", pid);
 	perror("Fork Failed ");
-	status = false;
-	abort();
+	return false;
     }
 
     va_end(args);
 
-    return status;
+    return true;
 }
 
 /**
@@ -167,13 +164,13 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
     {
 	/* Parent Process */
 	wait(NULL);
-	printf("do_exec_direct: Child Process completed with Code=%d \n", pid);
+	printf("do_exec_direct: Child Process completed with PID=%d \n", pid);
 	close(fd);
     }
     else
     {
         /* Error Handling */
-	printf("do_exec_direct: Fork Failed with Code=%d \n", pid);
+	printf("do_exec_direct: Fork Failed with PID=%d \n", pid);
 	perror("Fork Failed ");
 	status = false;
 	abort();
