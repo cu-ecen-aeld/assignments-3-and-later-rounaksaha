@@ -70,7 +70,7 @@ bool do_exec(int count, ...)
  *   as second argument to the execv() command.
  *
 */
-    bool status = false;
+    bool status = true;
     pid_t pid = fork();
 
     if(pid==0)
@@ -125,8 +125,52 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
  *   The rest of the behaviour is same as do_exec()
  *
 */
+    bool status = true;
+
+    int fd = open(outputfile, O_WRONLY|O_TRUNC|O_CREAT, 0644);
+    if(fd<0)
+    {
+	printf("do_exec_direct: Failed to open file \n");
+	status = false;
+	abort();
+    }
+
+    pid_t pid = fork();
+
+    if(pid==0)
+    {
+        /* Child Process */
+	printf("do_exec_direct: Fork Successful \n");
+
+	if(dup2(fd,1) <0)
+	{
+	   perror("Dup2 Failed ");
+	   status = false;
+	   abort();
+	}
+	close(fd);
+	execv(command[0], command);
+	perror("Execvp Failed ");
+	status = false;
+	abort();
+    }
+    else if(pid>0)
+    {
+	/* Parent Process */
+	wait(NULL);
+	printf("do_exec_direct: Child Process completed with Code=%d \n", pid);
+	close(fd);
+    }
+    else
+    {
+        /* Error Handling */
+	printf("do_exec_direct: Fork Failed with Code=%d \n", pid);
+	perror("Fork Failed ");
+	status = false;
+	abort();
+    }
 
     va_end(args);
 
-    return true;
+    return status;
 }
