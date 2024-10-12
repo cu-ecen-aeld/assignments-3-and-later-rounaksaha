@@ -79,23 +79,34 @@ bool do_exec(int count, ...)
     if(pid==0)
     {
 	/* Child Process */
-        printf("do_exec: Fork Successful \n");
-	execv(command[0], command);
-	perror("Execv Failed");
-	return false;
+        printf("do_exec: Fork Successful, Child Process=%d \n", getpid());
+	if(execv(command[0], command)==-1)
+		exit(EXIT_FAILURE);
+	exit(EXIT_SUCCESS);
     }
     else if(pid>0)
     {
         /* Parent Process */
-	wait(NULL); /* Wait for Child Process to finish */
-        printf("do_exec: Child Process Completed with PID=%d \n", pid);
+	int parent_stat;
+        pid_t kidpid = wait(&parent_stat); /* Wait for Child Process to finish */
+        printf("do_exec: Child Process PID=%d from Parent Process Status=%d \n", kidpid, parent_stat);
+
+	if(WIFEXITED(parent_stat))
+	{
+	    printf("Child Process Exited normally with status %d \n", WEXITSTATUS(parent_stat));
+	}
+	else
+	{
+	    printf("Child Terminated by signal %d \n", WTERMSIG(parent_stat));
+	    exit(EXIT_FAILURE);
+	}
     }
-    else
+    else /* pid < 0 */
     {
         /* Error Handling */
 	printf("do_exec: Fork Failed with PID=%d \n", pid);
 	perror("Fork Failed ");
-	return false;
+	exit(EXIT_FAILURE);
     }
 
     va_end(args);
