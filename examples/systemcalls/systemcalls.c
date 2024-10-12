@@ -131,14 +131,11 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
  *   The rest of the behaviour is same as do_exec()
  *
 */
-    bool status = true;
-
     int fd = open(outputfile, O_WRONLY|O_TRUNC|O_CREAT, 0644);
     if(fd<0)
     {
 	printf("do_exec_direct: Failed to open file \n");
-	status = false;
-	abort();
+	return false;
     }
 
     pid_t pid = fork();
@@ -151,14 +148,12 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
 	if(dup2(fd,1) <0)
 	{
 	   perror("Dup2 Failed ");
-	   status = false;
-	   abort();
+	   return false;
 	}
 	close(fd);
 	execv(command[0], command);
 	perror("Execv Failed ");
-	status = false;
-	abort();
+	return false;
     }
     else if(pid>0)
     {
@@ -172,11 +167,10 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
         /* Error Handling */
 	printf("do_exec_direct: Fork Failed with PID=%d \n", pid);
 	perror("Fork Failed ");
-	status = false;
-	abort();
+	return false;
     }
 
     va_end(args);
 
-    return status;
+    return true;
 }
